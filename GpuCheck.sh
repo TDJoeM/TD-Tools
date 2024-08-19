@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Function to unhold Nvidia packages if they were held
+unhold_nvidia_packages() {
+    echo "Removing hold on Nvidia packages..."
+    sudo apt-mark unhold nvidia* libnvidia*
+}
+
 # Function to identify the installed Nvidia GPU model
 get_nvidia_gpu_model() {
     lspci | grep -i nvidia
@@ -49,6 +55,9 @@ check_dmesg_for_errors() {
 }
 
 # Main script
+echo "Removing hold on Nvidia packages..."
+unhold_nvidia_packages
+
 echo "Checking for Nvidia GPU..."
 gpu_info=$(get_nvidia_gpu_model)
 
