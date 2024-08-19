@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Initial message for the user
+echo "If you are unsure which option to pick, please just pick Y."
+read -p "Do you understand? (y/n): " user_confirmation
+
+if [[ "$user_confirmation" != "y" && "$user_confirmation" != "Y" ]]; then
+    echo "User did not confirm understanding. Exiting script."
+    exit 1
+fi
+
 # Function to unhold Nvidia packages if they were held
 unhold_nvidia_packages() {
     echo "Removing hold on Nvidia packages..."
@@ -87,3 +96,6 @@ if [[ -n "$gpu_info" ]]; then
 else
     echo "No Nvidia GPU detected. Exiting script."
 fi
+
+# Thank you message
+echo "Joe at TensorDock thanks you for using our service!"
