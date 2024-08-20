@@ -4,9 +4,9 @@
 echo "If you are unsure which option to pick, please just pick Y."
 read -p "Do you understand? (y/n): " user_confirmation
 
+# Check if the user confirmed understanding
 if [[ "$user_confirmation" != "y" && "$user_confirmation" != "Y" ]]; then
-    echo "User did not confirm understanding. Exiting script."
-    exit 1
+    echo "User did not confirm understanding. Continuing anyway..."
 fi
 
 # Function to unhold Nvidia packages if they were held
@@ -78,7 +78,7 @@ if [[ -n "$gpu_info" ]]; then
     if [[ -s /tmp/gpu_errors.log ]]; then
         echo "Errors found in dmesg related to GPU/Nvidia:"
         cat /tmp/gpu_errors.log
-        read -p "Do you still wish to install the Nvidia drivers? (y/n): " user_choice
+        read -p "ERROR FOUND WITH GPU. INSTALLING DRIVERS MAY NOT WORK. DO YOU WISH TO TRY? (y/n): " user_choice
     else
         read -p "No GPU/Nvidia errors found in dmesg. Do you wish to install the Nvidia drivers? (y/n): " user_choice
     fi
