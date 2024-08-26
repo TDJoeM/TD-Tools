@@ -8,7 +8,6 @@ exec > >(tee -a $LOGFILE) 2>&1
 echo "If you are unsure which option to pick, please just pick Y."
 read -p "Do you understand? (y/n): " user_confirmation
 
-# Check if the user confirmed understanding
 if [[ "$user_confirmation" != "y" && "$user_confirmation" != "Y" ]]; then
     echo "User did not confirm understanding. Continuing anyway..."
 fi
@@ -107,12 +106,3 @@ fi
 
 # Thank you message
 echo "Joe at TensorDock thanks you for using our service!"
-
-# Ask if the user wants to reboot the system
-read -p "Do you want to reboot the system now? (y/n): " reboot_choice
-if [[ "$reboot_choice" == "y" || "$reboot_choice" == "Y" ]]; then
-    echo "Rebooting the system now..."
-    sudo reboot
-else
-    echo "Reboot skipped. Please reboot manually if necessary."
-fi
