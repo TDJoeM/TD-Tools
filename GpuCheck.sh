@@ -75,7 +75,7 @@ if [[ -n "$gpu_info" ]]; then
     echo "$gpu_info"
     
     check_dmesg_for_errors
-    if ([[ -s /tmp/gpu_errors.log ]]; then
+    if [[ -s /tmp/gpu_errors.log ]]; then
         echo "Errors found in dmesg related to GPU/Nvidia:"
         cat /tmp/gpu_errors.log
         read -p "ERROR FOUND WITH GPU. INSTALLING DRIVERS MAY NOT WORK. DO YOU WISH TO TRY? (y/n): " user_choice
