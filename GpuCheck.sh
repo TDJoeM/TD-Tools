@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Log file for output
+LOGFILE="/tmp/nvidia_install.log"
+exec > >(tee -a $LOGFILE) 2>&1
+
 # Initial message for the user
 echo "If you are unsure which option to pick, please just pick Y."
 read -p "Do you understand? (y/n): " user_confirmation
@@ -13,30 +17,18 @@ fi
 unhold_nvidia_packages() {
     echo "Removing hold on Nvidia packages..."
     sudo apt-mark unhold nvidia* libnvidia*
-    if [ $? -ne 0 ]; then
-        echo "Failed to remove hold on Nvidia packages."
-        exit 1
-    fi
 }
 
 # Function to identify the installed Nvidia GPU model
 get_nvidia_gpu_model() {
     echo "Identifying Nvidia GPU model..."
     lspci | grep -i nvidia
-    if [ $? -ne 0 ]; then
-        echo "Failed to identify Nvidia GPU."
-        exit 1
-    fi
 }
 
 # Function to uninstall existing Nvidia drivers
 uninstall_nvidia_drivers() {
     echo "Uninstalling existing Nvidia drivers..."
     sudo apt-get purge -y 'nvidia-*'
-    if [ $? -ne 0 ]; then
-        echo "Failed to uninstall Nvidia drivers."
-        exit 1
-    fi
     sudo apt-get autoremove -y
     sudo apt-get autoclean -y
 }
@@ -45,10 +37,6 @@ uninstall_nvidia_drivers() {
 add_nvidia_ppa() {
     echo "Adding Nvidia PPA..."
     sudo add-apt-repository ppa:graphics-drivers/ppa -y
-    if [ $? -ne 0 ]; then
-        echo "Failed to add Nvidia PPA."
-        exit 1
-    fi
     sudo apt-get update
 }
 
@@ -58,10 +46,6 @@ install_ubuntu_drivers_common() {
     if ! dpkg -l | grep -q ubuntu-drivers-common; then
         echo "Installing ubuntu-drivers-common package..."
         sudo apt-get install -y ubuntu-drivers-common
-        if [ $? -ne 0 ]; then
-            echo "Failed to install ubuntu-drivers-common."
-            exit 1
-        fi
     fi
 }
 
@@ -69,10 +53,6 @@ install_ubuntu_drivers_common() {
 install_latest_nvidia_drivers() {
     echo "Installing the latest Nvidia drivers..."
     sudo ubuntu-drivers autoinstall
-    if [ $? -ne 0 ]; then
-        echo "Failed to install Nvidia drivers."
-        exit 1
-    fi
 }
 
 # Function to install nvidia-smi if not installed
@@ -81,10 +61,6 @@ install_nvidia_smi() {
     if ! command -v nvidia-smi &> /dev/null; then
         echo "Installing nvidia-smi..."
         sudo apt-get install -y nvidia-utils-$(nvidia-driver --query-gpu=driver_version | grep -Po '\d+')
-        if [ $? -ne 0 ]; then
-            echo "Failed to install nvidia-smi."
-            exit 1
-        fi
     fi
 }
 
@@ -92,10 +68,6 @@ install_nvidia_smi() {
 check_dmesg_for_errors() {
     echo "Checking dmesg for GPU/Nvidia errors..."
     sudo dmesg | grep -E 'GPU|nvidia|RmInitAdapter|failed' | tee /tmp/gpu_errors.log
-    if [ $? -ne 0 ]; then
-        echo "Failed to check dmesg for errors."
-        exit 1
-    fi
 }
 
 # Main script
@@ -125,7 +97,7 @@ if [[ -n "$gpu_info" ]]; then
         install_ubuntu_drivers_common
         install_latest_nvidia_drivers
         install_nvidia_smi
-        echo "Nvidia drivers and nvidia-smi installed successfully. Please reboot your system."
+        echo "Nvidia drivers and nvidia-smi installed successfully."
     else
         echo "Installation aborted by user."
     fi
@@ -136,6 +108,11 @@ fi
 # Thank you message
 echo "Joe at TensorDock thanks you for using our service!"
 
-# Reboot the system (Comment out if you don't want to reboot immediately)
-echo "Rebooting the system now..."
-sudo reboot
+# Ask if the user wants to reboot the system
+read -p "Do you want to reboot the system now? (y/n): " reboot_choice
+if [[ "$reboot_choice" == "y" || "$reboot_choice" == "Y" ]]; then
+    echo "Rebooting the system now..."
+    sudo reboot
+else
+    echo "Reboot skipped. Please reboot manually if necessary."
+fi
