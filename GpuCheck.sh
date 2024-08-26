@@ -1,13 +1,10 @@
 #!/bin/bash
 
-# Log file for output
-LOGFILE="/tmp/nvidia_install.log"
-exec > >(tee -a $LOGFILE) 2>&1
-
 # Initial message for the user
 echo "If you are unsure which option to pick, please just pick Y."
 read -p "Do you understand? (y/n): " user_confirmation
 
+# Check if the user confirmed understanding
 if [[ "$user_confirmation" != "y" && "$user_confirmation" != "Y" ]]; then
     echo "User did not confirm understanding. Continuing anyway..."
 fi
@@ -20,7 +17,6 @@ unhold_nvidia_packages() {
 
 # Function to identify the installed Nvidia GPU model
 get_nvidia_gpu_model() {
-    echo "Identifying Nvidia GPU model..."
     lspci | grep -i nvidia
 }
 
@@ -41,7 +37,6 @@ add_nvidia_ppa() {
 
 # Function to install ubuntu-drivers-common if not installed
 install_ubuntu_drivers_common() {
-    echo "Checking for ubuntu-drivers-common package..."
     if ! dpkg -l | grep -q ubuntu-drivers-common; then
         echo "Installing ubuntu-drivers-common package..."
         sudo apt-get install -y ubuntu-drivers-common
@@ -56,7 +51,6 @@ install_latest_nvidia_drivers() {
 
 # Function to install nvidia-smi if not installed
 install_nvidia_smi() {
-    echo "Checking for nvidia-smi..."
     if ! command -v nvidia-smi &> /dev/null; then
         echo "Installing nvidia-smi..."
         sudo apt-get install -y nvidia-utils-$(nvidia-driver --query-gpu=driver_version | grep -Po '\d+')
@@ -70,8 +64,7 @@ check_dmesg_for_errors() {
 }
 
 # Main script
-echo "Starting Nvidia setup script..."
-
+echo "Removing hold on Nvidia packages..."
 unhold_nvidia_packages
 
 echo "Checking for Nvidia GPU..."
@@ -106,3 +99,7 @@ fi
 
 # Thank you message
 echo "Joe at TensorDock thanks you for using our service!"
+
+# Reboot the system
+echo "Rebooting the system now..."
+sudo reboot
